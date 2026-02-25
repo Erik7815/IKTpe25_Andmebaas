@@ -137,3 +137,108 @@ select * from Person order by Name
 
 --võtab kolm esimest rida person tabelis
 select top 3 * from Person
+
+--kolm esimest aga tabeli järjestus on age ja siis Name
+select top 3 Age, Name from Person
+--näita esimesed 50% tabelist
+
+select top 50 PERCENT * from Person
+
+--järjestab vanuse järgi isikud
+select * from Person order by cast(Age as int) desc
+--muudab age muutuja int-ks ja näitab vanuselises järjestuses
+
+--kõikide isikut koondvanus e liidab kõik kokku
+select SUM(cast(age as int)) from Person
+
+--kõige noorem isik tuleb leida üles
+select min(cast(age as int)) from Person
+
+--kõige vanem isisk
+select max(cast(age as int)) from Person
+
+--muudame age muutuja int peale
+--näeme konkreetsete linnades olevates isikute koondavust
+select city, SUM(age) as totalAge from Person group by City
+
+--kuidas saab koodiga muuta andmetüüpi ja selle pikkust
+alter table person
+alter column name nvarchar(25)
+
+--kuvab esimeses reas välja toodud järjestusesja kuvab Age-i
+--TotalAge-ka
+--järjestab city-s olevate nimede järgi ja siis GenderID järgi
+--kasutada group by-d ja order by-d
+select city, GenderId, SUM(age) as TotalAge from Person group by City, GenderId
+order by City
+
+--näitab et mitu rida andmeid on selles tabelis
+SELECT COUNT(*)FROM Person 
+-- näitab tuemust mitu inimest on GenderId väärtusega 2
+--arvutab vanuse kokku selles linnas
+select GenderId, city, SUM(age) as totalage, COUNT(id) as [total person(s)]
+from Person where GenderId = '2'
+group by GenderId, City
+
+--näitab ära inimeste koondvanuse mis on üle 41 a ja
+--kui palju neid igas linnas elab
+--eristab inimese soo ära
+select GenderId, city, SUM(age) as totalage, COUNT(id) as [total person(s)]
+from Person where GenderId = '2'
+group by GenderId, City having SUM(age) > 41
+
+--loome tabelid Employees ja Depatment
+create table Department 
+(
+id int primary key,
+DepartmentName nvarchar(50),
+Location nvarchar(50),
+DepartmentHead nvarchar(50)
+)
+
+create table Employees 
+(
+id int primary key,
+Name nvarchar(50),
+Gender nvarchar(50),
+Salary nvarchar(50),
+Department int
+)
+insert into Employees (id, Name, Gender, Salary, Department)
+values (1, 'Tom', 'Male', 4000, 1),
+(2, 'Pam', 'Female', 3000, 3),
+(3, 'John', 'Male', 3500, 1),
+(4, 'Sam', 'Male', 4500, 2),
+(5, 'Todd', 'Male', 2800, 2),
+(6, 'Ben', 'Male', 7000, 1),
+(7, 'Sara', 'Female', 4800, 3),
+(8, 'Valarie', 'Female', 5500, 1),
+(9, 'James', 'Male', 6500, Null),
+(10, 'Russel', 'Male', 8800, null)
+
+insert into Department (id, DepartmentName,  Location, DepartmentHead)
+values (1, 'IT', 'London', 'Rick'),
+(2, 'Payroll', 'Delhi', 'Ron'),
+(3, 'HR', 'New York', 'Christine'),
+(4, 'Other department', 'Sydney', 'Cindrella')
+select * from Department
+select * from Employees
+
+select Name, Gender, Salary, Department
+from Employees
+left join Department
+on Employees.Department = Department
+
+--arvutab kõikide palgad kokku employees tabelis
+select SUM(cast(salary as int)) from Employees
+
+--kõige väiksema palga saaja
+select min(cast(salary as int)) from Employees
+
+--näitab veerge location ja palka. Palga veerg kuvatakse totalsalary-ks
+--teha left join department tabeliga
+--grupitab locationiga
+select Location, SUM(cast(salary as int)) as totalsalary from Employees
+left join Department
+on Employees.Department = Department
+group by Location
