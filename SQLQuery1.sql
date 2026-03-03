@@ -242,3 +242,59 @@ select Location, SUM(cast(salary as int)) as totalsalary from Employees
 left join Department
 on Employees.Department = Department
 group by Location
+
+select SUM(cast(salary as int)) from employees --arvutab kõigi palga kokku
+
+--lisame veeru City ja pikkus on 30
+alter table employees 
+add City nvarchar(30) 
+
+select City, Gender, SUM(cast(Salary as int )) as TotalSalary from Employees
+group by City, Gender
+
+--peaagu sama päring aga linnad on tähestikulises järjestuses
+select City, Gender, SUM(cast(Salary as int )) as TotalSalary from Employees
+group by City, Gender
+order by City asc
+
+--on vaja teada, et mitu inimest on nimekirjas
+select COUNT(*) from Employees
+
+--mitu töötajat on soo ja linna kaupa töötamas
+select City, Gender, SUM(cast(salary as int)) as totalsalary,
+COUNT (id) as [Total employees]
+from Employees
+group by Gender,City
+
+--kuvab kas naised või mehed linnade kaupa
+--kasutage where
+select City, Gender, SUM(cast(salary as int)) as totalsalary,
+COUNT (id) as [Total employees]
+from Employees
+where Gender = 'Male'
+group by Gender,City
+
+--sama tulemus nagu eelmine kord aga kasutage having
+select City, Gender, SUM(cast(salary as int)) as totalsalary,
+COUNT (id) as [Total employees]
+from Employees
+where Gender = 'Male'
+group by Gender,City
+having city = 'London';
+
+--kõik kes teenivad rohkem kui 4000 
+select City, Gender, SUM(cast(salary as int)) as totalsalary,
+COUNT (id) as [Total employees]
+from Employees
+where Gender = 'Male'
+group by Gender,City
+having sum(cast(salary as int)) > 4000;
+
+--loome tabeli milles hakatakse automaatslet numerdama Id-d
+create table test1
+(
+id int identity(1,1),
+value nvarchar(20)
+)
+insert into test1 values('X')
+select * from test1
