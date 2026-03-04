@@ -298,3 +298,92 @@ value nvarchar(20)
 )
 insert into test1 values('X')
 select * from test1
+
+--kustutame veeru nimega city employee tabelist 
+alter table employees drop column city
+
+--inner join
+--kuvab neid kellel on Department all olemas v‰‰rtus
+--mitte katuvad read eemaldatakse ja sellep‰rast ei n‰idata
+--Jamesi ja Russelit tabelis kuna 
+--neil on departmentId null
+select name, Gender, Salary, DepartmentName 
+from Employees
+inner join Department
+on Employees.Department = Department.Id
+
+--left join
+select name, Gender, Salary, DepartmentName 
+from Employees
+left join Department
+on Employees.Department = Department.Id
+--uurige mis on left join
+--n‰itab andmeid kus vasakpoolses tabelis isegi siis kui seal puudub 
+--mınes reas v‰‰rtus
+
+--right join
+select name, Gender, Salary, DepartmentName 
+from Employees
+right join Department
+on Employees.Department = Department.Id
+--right join n‰itab paremas (department) tabelis olevaid v‰‰rtuseid 
+--mis ei ¸hti (employees vasaku tabeliga 
+--outer join
+select name, Gender, Salary, DepartmentName 
+from Employees
+full outer join Department
+on Employees.Department = Department.Id
+--mılema tabeli read kuvab
+
+--teha cross join 
+--teha left join kus Employee tabelist DepartmentId on null
+select name, Gender, Salary, DepartmentName 
+from Employees
+cross join Department
+where Employees.Department = Department.Id
+--korrutab kıik omavahel l‰bi
+
+select name, Gender, Salary, DepartmentName 
+from Employees
+left join Department
+on Employees.Department = Department.id
+where Department.Id is null
+--n‰itab ainult neid kellel on vasakus tabelis(employee)
+--departmentId mull
+
+select name, Gender, Salary, DepartmentName 
+from Employees
+right join Department
+on Employees.Department = Department.id
+where Department.Id is null
+--n‰itab ainult paremas tabelis olevatrida
+--mis ei kattu Employees-ga
+
+--full join 
+--mılema tabeli mitte-kattuvate v‰‰rtustega read kuvab v‰lja
+select name, Gender, Salary, DepartmentName 
+from Employees
+full join Department
+on Employees.Department = Department.id
+where employees.Department is null
+--teete AdventureworksLT2019 andmebaasile join p‰ringud
+--inner join, left join, right join, cross join ja full join
+--tabeleid sellesse andmebaasi ei tohi teha
+select p.Name as Productname, pc.Name as CategoryName
+from SalesLT.Product p 
+cross join SalesLT.ProductCategory pc
+select * from SalesLT.Product 
+
+select p.Name as Productname, pc.Name as CategoryName
+from SalesLT.Product p 
+right join SalesLT.ProductCategory pc
+on P.productCategoryID = pc.productcategoryID 
+
+select p.Name as Productname, pc.Name as CategoryName
+from SalesLT.Product p 
+left join SalesLT.ProductCategory pc
+on P.productCategoryID = pc.productcategoryID 
+
+select p.Name as Productname, pc.Name as CategoryName
+from SalesLT.Product p 
+cross join SalesLT.ProductCategory pc
