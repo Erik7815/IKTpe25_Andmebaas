@@ -369,21 +369,15 @@ where employees.Department is null
 --teete AdventureworksLT2019 andmebaasile join päringud
 --inner join, left join, right join, cross join ja full join
 --tabeleid sellesse andmebaasi ei tohi teha
-select p.Name as Productname, pc.Name as CategoryName
-from SalesLT.Product p 
-cross join SalesLT.ProductCategory pc
-select * from SalesLT.Product 
 
-select p.Name as Productname, pc.Name as CategoryName
-from SalesLT.Product p 
-right join SalesLT.ProductCategory pc
-on P.productCategoryID = pc.productcategoryID 
-
-select p.Name as Productname, pc.Name as CategoryName
-from SalesLT.Product p 
-left join SalesLT.ProductCategory pc
-on P.productCategoryID = pc.productcategoryID 
-
-select p.Name as Productname, pc.Name as CategoryName
-from SalesLT.Product p 
-cross join SalesLT.ProductCategory pc
+--mõnikord peab muutuja ette kirjutama tabeli nimetuse nagu Product.Name
+--et editor saaks aru kumba tabeli muutujat soovitatakse kasutada ja ei tekiks segadust
+Select Product.Name [Product Name], ProductNumber, ListPrice, ProductModel.
+--mõnikord peab ka tabeli ette kirjutama täpsustama info
+--nagu on SalesLT.Product
+Name as [Product Model Name]
+from SalesLt.Product
+inner join SalesLt.ProductModel
+--antud juhul Product tabelis ProductModelId võõrvõti
+--mis ProductModeli tabelis on primaarvõti
+on Product.ProductModelId = ProductModel.ProductModelId
