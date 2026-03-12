@@ -381,3 +381,142 @@ inner join SalesLt.ProductModel
 --antud juhul Product tabelis ProductModelId võõrvõti
 --mis ProductModeli tabelis on primaarvõti
 on Product.ProductModelId = ProductModel.ProductModelId
+
+select isnull('ingvar', 'No manager') as Manager
+--Null asemel kuvab No Manager
+select coalesce(Null, 'No Manager') as Manager
+
+alter table Employees
+add ManagerID int
+
+--neile kelle ei ole ülemust siis paneb neile no manager teksti
+--Kasutage left joini 
+select E.Name as Employee, ISNULL(M.Name, 'No Manager') as Manager from Employees E 
+left join Employees M 
+on E.ManagerId = M.id
+
+select E.Name as Employee, ISNULL(M.Name, 'No Manager') as Manager from Employees E 
+inner join Employees M 
+on E.ManagerId = M.id
+
+--kõik saavad kõikide ülemused olla
+select E.Name as Employee, ISNULL(M.Name, 'No Manager') as Manager from Employees E 
+cross join Employees M 
+
+--lisame tabelisse uued veerud 
+alter table Employees 
+add MiddleName nvarchar(30),
+LastName nvarchar(30)
+
+--muudame olemasoleva veeru nimetust
+sp_rename 'Employees.Name','FirstName'
+update Employees 
+set MiddleName = 'Nick'
+where Id = 1
+update Employees 
+set MiddleName = 'Todd'
+where Id = 5
+update Employees 
+set MiddleName = 'Ten'
+where Id = 6
+update Employees 
+set MiddleName = 'Balerine'
+where Id = 8
+update Employees 
+set MiddleName = '007'
+where Id = 9
+update Employees 
+set LastName = 'Crowe'
+where Id = 10
+
+--igast reast võtab esimesena lahtri ja kuvab ainult seda
+select * from Employees
+select Id, coalesce (FirstName, MiddleName, LastName) as name from Employees 
+
+--loome kaks tabelit
+create table IndianCustomers
+(
+Id int Identity(1,1),
+Name nvarchar(25),
+Email nvarchar(25)
+)
+
+create table UKCustomers
+(
+Id int Identity(1,1),
+Name nvarchar(25),
+Email nvarchar(25)
+)
+
+--sisetame tabelisse andmeid 
+insert into IndianCustomers (Name, Email)
+values ('Raj', 'R@R.com'),
+('Sam', 'S@S.com')
+ 
+ insert into UKCustomers (Name, Email)
+values ('Ben', 'B@RB.com'),
+('Sam', 'S2S.com')
+select * from IndianCustomers
+select * from UKCustomers
+
+--kasutame union all mis näitab kõiki ridu 
+--union all ühendab tabelid ja näitab sisu
+select Id, Name, Email from IndianCustomers
+union all
+select Id, Name, Email from UKCustomers
+order by Name
+
+--stored procedure
+--tavaliselt pannakse nimetuse ett sp mis tähendab stored procedure
+create procedure spGetEmployees
+as begin 
+select FirstName, Gender from Employees
+end
+--nüüd saab kasutada selle nimelist sp-d
+spGetEmployees
+exec spGetEmployees
+
+create proc spGetEmployeesByGenderAndDepartment
+--@ täheñdab muutujat
+@Gender nvarchar(20),
+@Department int
+as begin 
+select FirstName, Gender, Department from Employees where Gender = @Gender
+and Department = @Department
+end
+
+--kui nüüd alloveast käsklust käima panna siis nõuab gender parameetrit
+spGetEmployeesByGenderAndDepartment 'Female', 1
+
+--niimoodi saaab sp kirja pandus järjekorrast mööda minna kui ise paned muutuja paika
+spGetEmployeesByGenderAndDepartment @Department = 1, @Gender = 'Male'
+
+--saab vaadata sp sisu result vaates
+sp_helptext spGetEmployeesByGenderAndDepartment
+--kuidas muuta sp-d ja panna sinna vüti peale et keegi teine peale teie ei saaks muuta
+--kuskile tuleb lisada with encryption
+alter proc spGetEmployeesByGenderAndDepartment
+@Gender nvarchar(20),
+@Department int
+with encryption
+as begin 
+select FirstName, Gender, Department from Employees where Gender = @Gender
+and Department = @Department
+end
+
+create proc spGetEmployeecountbyender
+@Gender nvarchar(20),
+@EmployeeCount int output
+as begin
+select @EmployeeCount = COUNT(Id) from Employees where Gender = @Gender
+end
+--execute spGetEmployeecountbyender sp
+--if ja else, kui Totalcount = 0, siis tuleb tekst toatlcount is null
+--lõpus kasuta print @totalcount puhul  
+declare @totalcount int
+execute spGetEmployeecountbyender 'Male', @totalcount
+if (@totalcount = 0)
+print '@totalcount is null'
+else
+print '@Total is not null'
+print @totalcount
