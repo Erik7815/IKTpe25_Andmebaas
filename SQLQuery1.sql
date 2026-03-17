@@ -1,210 +1,247 @@
---teeme andmebaasi e db
+--17.02.2026
+--tund nr 1
+
+-- teeme andmebaasi e db
 create database IKT25tar
 
-
+--andmebaasi valimine
 use IKT25tar
 
---andmebaasi kustutamine
+--andmebaasi kustutamine koodiga
+--otsida kood ülesse
 drop database IKT25tar
 
+--teeme uuesti andmebaasi IKT25tar
 create database IKT25tar
+
 --teeme tabeli
 create table Gender
 (
---Meil on muutuja Id, mis on täisarv andmetüüp,
---kui sisestad andmed, siis see peab veerg olema täidetud
+--Meil on muutuja Id,
+--mis on täisarv andmetüüp,
+--kui sisestad andmed, 
+--siis see veerg peab olema täidetud,
 --tegemist on primaarvõtmega
 Id int not null primary key,
---veeru nimi on Gender, 10 tähemärki on max pikkus
---andmed peavad olema sisestatud e ei tohi olla tühi
+--veeru nimi on Gender,
+--10 tähemärki on max pikkus,
+--andmed peavad olema sisestatud e 
+--ei tohi olla tühi
 Gender nvarchar(10) not null
 )
 
---andmete sisestamine 
+--andmete sisestamine Gender tabelisse
 --proovige ise teha
---id 1, Gender Male
---Id 2, Gender Female
+-- Id = 1, Gender = Male
+-- Id = 2, Gender = Female
 insert into Gender (Id, Gender)
 values (1, 'Male'),
 (2, 'Female')
 
---vaatame tabeli sisu 
---* tähendab näita kõike seal sees olevat infot
+--vaatame tabeli sisu
+-- * tähendab, et näita kõike seal sees olevat infot
 select * from Gender
 
---teeme tabeli nimega person
---veeru nimed: Id int not null primary key, 
---Name nvarchar (30)
---Email nvarchar (30)
---gender int 
-create table Person 
+--teeme tabeli nimega Person
+--veeru nimed: Id int not null primary key,
+-- Name nvarchar (30)
+-- Email nvarchar (30)
+--GenderId int
+create table Person
 (
 Id int not null primary key,
 Name nvarchar(30),
 Email nvarchar(30),
-Age nvarchar(10),
 GenderId int
 )
+
+--18.02.2026
+--tund nr 2
+
 insert into Person (Id, Name, Email, GenderId)
 values (1, 'Superman', 's@s.com', 2),
 (2, 'Wonderwoman', 'w@w.com', 1),
 (3, 'Batman', 'b@b.com', 2),
-(4, 'aquaman', 'a@a.com', 2),
-(5, 'catwoman', 'c@c.com', 1),
-(6, 'antman', 'ant"ant.com', 2),
-(8, null, null, 2)
+(4, 'Aquaman', 'a@a.com', 2),
+(5, 'Catwoman', 'c@c.com', 1),
+(6, 'Antman', 'ant"ant.com', 2),
+(8, NULL, NULL, 2)
 
---näen tabelis olevat infot 
+--näen tabelis olevat infot
 select * from Person
 
 --võõrvõtme ühenduse loomine kahe tabeli vahel
 alter table Person add constraint tblPerson_GenderId_FK
 foreign key (GenderId) references Gender(Id)
 
---kui sisestad uue rea andmeid ja ei ole sistenaud Genderid alla
---väärtust, siis automaatslet sisestab sellele reale väärtuse 3
---e unknown
-alter table Person 
-add constraint DF_Person_GenderId
+-- kui sisestad uue rea andmeid ja ei ole sisestanud GenderId alla 
+-- väärtust, siis automaatselt sisestab sellele reale väärtuse 3
+-- e unknown
+alter table Person
+add constraint DF_Persons_GenderId
 default 3 for GenderId
 
-Insert into Gender (Id, Gender)
-values (3, 'unknown')
+insert into Gender (Id, Gender)
+values (3, 'Unknown')
 
 insert into Person (Id, Name, Email, GenderId)
-VALUES (7, 'Black panther', 'b@b.com', null)
+values (7, 'Black Panther', 'b@b.com', NULL)
 
 insert into Person (Id, Name, Email)
-VALUES (9, 'Spiderman', 'spider@man.com')
+values (9, 'Spiderman', 'spider@man.com')
 
 select * from Person
---piirangu kustutamine
+
+--piirnagu kustutamine
 alter table Person
 drop constraint DF_Persons_GenderId
---kuida lisada veergu tabelile Person
+
+--kuidas lisada veergu tabelile Person
 --veeru nimi on Age nvarchar(10)
-alter table Person 
-add Age nvarchar(10) 
+alter table Person
+add Age nvarchar(10)
 
-alter table person
-add constraint CK_Person_Age check (Age > 0 and Age <155)
+alter table Person
+add constraint CK_Person_Age check (Age > 0 and Age < 155)
 
---kuidas uuendada andmeid 
+-- kuidas uuendada andemeid
 update Person
-Set Age = 25
-where Id = 2
+set Age = 159
+where Id = 7
+
+select * from Person
 
 --soovin kustutada ühe rea
-delete from Person
-where Id = 8
+-- kuidas seda teha????
+delete from Person where Id = 8
 
---lisame uue veeru city nvarchar(50)
-alter table Person 
+select * from Person
+
+--lisame uue veeru City nvarchar(50)
+alter table Person
 add City nvarchar(50)
-select * from Person where City = 'Gotham City'
---kõik kes ei ela gothamis
-select * from Person where City != 'Gotham City'
---Vrjänt nr.2 kõik kes ei ela gothamis
+
+--kõik, kes elavad Gothami linnas
+select * from Person where City = 'Gotham'
+-- k]ik, kes ei ela Gothamis
+select * from Person where City != 'Gotham'
+-- variant nr 2. K]ik, kes ei ela Gothamis
 select * from Person where City <> 'Gotham'
 
---näitab teatud vanusega inimesi 
---valime 151,35,25
-select * from Person where Age in (151, 25, 35);
-select * from Person where Age = 150 or Age = 35 or Age = 26
+--näitab teatud vanusega inimesi
+-- valime 151, 35, 26
+select * from Person where Age in (151, 35, 26)
+select * from Person where Age = 151 or Age = 35 or Age = 26
 
---soovin näha inimesi vahemikkus 22 kuni 41
-select * from person where Age > 22 and Age < 41
+-- soovin näha inimesi vahemikus 22 kuni 41
+select * from Person where Age between 22 and 41
 
---wildcard e näitab kõik g tähega linnad
-select * from Person where City like 'g%';
---otsib emailid @ märgiga
+--wildcard e näitab kõik g-tähega linnad
+select * from Person where City like 'g%'
+--otsib emailid @-märgiga
 select * from Person where Email like '%@%'
 
---tahan näha kellel on emailis ees ja peale @ märki üks täht
-select * from Person where Email like '%@_._com%'
+--tahan näha, kellel on emailis ees ja peale @-märki üks täht
+select * from Person where Email like '_@_.com'
 
---kõik kelle nimes ei ole esimene täht W, A, S
+--kõik, kelle nimes ei ole esimene täht W, A, S
 select * from Person where Name like '[^WAS]%'
 
---kõik kes elavad gothamis ja new yorkis
-select * from Person where (City = 'Gotham city' or City = 'New York')
+--k]ik, kes elavad Gothamis ja New Yorkis
+select * from Person where (City = 'Gotham' or City = 'New York')
 
---kõik kes elavad gothamis ja new yorkis ning peavad olema vanemad kui 29
-select * from Person where (City = 'Gotham city' or City = 'New York') and Age > 29
+-- k]ik, kes elavad Gothamis ja New Yorkis ning peavad olema 
+-- vanemad, kui 29
+select * from Person where (City = 'Gotham' or City = 'New York')
+and Age >= 30
 
---kuvab tähestikulises järjekorras inimesi ja võtab aluseks name veeru 
+--kuvab tähestikulises järjekorras inimesi ja võtab aluseks 
+-- Name veeru
+select * from Person
 select * from Person order by Name
 
---võtab kolm esimest rida person tabelis
+--võtab kolm esimest rida Person tabelist
 select top 3 * from Person
 
---kolm esimest aga tabeli järjestus on age ja siis Name
+--tund 3
+--25.02.2026
+--kolm esimest, aga tabeli järjestus on Age ja siis Name
 select top 3 Age, Name from Person
---näita esimesed 50% tabelist
 
-select top 50 PERCENT * from Person
+--näita esimesed 50% tabelist
+select top 50 percent * from Person
+select * from Person
 
 --järjestab vanuse järgi isikud
+select * from Person order by Age desc
+
+--muudab Age muutuja int-ks ja näitab vanuselises järjestuses
+-- cast abil saab andmetüüpi muuta
 select * from Person order by cast(Age as int) desc
---muudab age muutuja int-ks ja näitab vanuselises järjestuses
 
---kõikide isikut koondvanus e liidab kõik kokku
-select SUM(cast(age as int)) from Person
+-- kõikide isikute koondvanus e liidab kõik kokku
+select sum(cast(Age as int)) from Person
 
---kõige noorem isik tuleb leida üles
-select min(cast(age as int)) from Person
+--kõige noorem isik tuleb üles leida
+select min(cast(Age as int)) from Person
 
---kõige vanem isisk
-select max(cast(age as int)) from Person
+--kõige vanem isik
+select max(cast(Age as int)) from Person
 
---muudame age muutuja int peale
---näeme konkreetsete linnades olevates isikute koondavust
-select city, SUM(age) as totalAge from Person group by City
+--muudame Age muutuja int peale
+-- näeme konkreetsetes linnades olevate isikute koondvanust
+select City, sum(Age) as TotalAge from Person group by City
 
 --kuidas saab koodiga muuta andmetüüpi ja selle pikkust
-alter table person
-alter column name nvarchar(25)
+alter table Person 
+alter column Name nvarchar(25)
 
---kuvab esimeses reas välja toodud järjestusesja kuvab Age-i
---TotalAge-ka
---järjestab city-s olevate nimede järgi ja siis GenderID järgi
+-- kuvab esimeses reas välja toodud järjestuses ja kuvab Age-i 
+-- TotalAge-ks
+--järjestab City-s olevate nimede järgi ja siis Genderid järgi
 --kasutada group by-d ja order by-d
-select city, GenderId, SUM(age) as TotalAge from Person group by City, GenderId
+select City, GenderId, sum(Age) as TotalAge from Person
+group by City, GenderId
 order by City
 
---näitab et mitu rida andmeid on selles tabelis
-SELECT COUNT(*)FROM Person 
--- näitab tuemust mitu inimest on GenderId väärtusega 2
+--näitab, et mitu rida andmeid on selles tabelis
+select count(*) from Person
+
+--näitab tulemust, et mitu inimest on Genderid väärtusega 2
+--konkreetses linnas
 --arvutab vanuse kokku selles linnas
-select GenderId, city, SUM(age) as totalage, COUNT(id) as [total person(s)]
-from Person where GenderId = '2'
+select GenderId, City, sum(Age) as TotalAge, count(Id) as 
+[Total Person(s)] from Person
+where GenderId = '1'
 group by GenderId, City
 
---näitab ära inimeste koondvanuse mis on üle 41 a ja
+--näitab ära inimeste koondvanuse, mis on üle 41 a ja
 --kui palju neid igas linnas elab
 --eristab inimese soo ära
-select GenderId, city, SUM(age) as totalage, COUNT(id) as [total person(s)]
-from Person where GenderId = '2'
-group by GenderId, City having SUM(age) > 41
+select GenderId, City, sum(Age) as TotalAge, count(Id) as 
+[Total Person(s)] from Person
+where GenderId = '2'
+group by GenderId, City having sum(Age) > 41
 
---loome tabelid Employees ja Depatment
-create table Department 
+--loome tabelid Employees ja Department
+create table Department
 (
-id int primary key,
+Id int primary key,
 DepartmentName nvarchar(50),
 Location nvarchar(50),
 DepartmentHead nvarchar(50)
 )
 
-create table Employees 
+create table Employees
 (
-id int primary key,
+Id int primary key,
 Name nvarchar(50),
 Gender nvarchar(50),
 Salary nvarchar(50),
-Department int
+DepartmentId int
 )
-insert into Employees (id, Name, Gender, Salary, Department)
+
+insert into Employees (Id, Name, Gender, Salary, Department)
 values (1, 'Tom', 'Male', 4000, 1),
 (2, 'Pam', 'Female', 3000, 3),
 (3, 'John', 'Male', 3500, 1),
@@ -213,310 +250,464 @@ values (1, 'Tom', 'Male', 4000, 1),
 (6, 'Ben', 'Male', 7000, 1),
 (7, 'Sara', 'Female', 4800, 3),
 (8, 'Valarie', 'Female', 5500, 1),
-(9, 'James', 'Male', 6500, Null),
-(10, 'Russel', 'Male', 8800, null)
+(9, 'James', 'Male', 6500, NULL),
+(10, 'Russell', 'Male', 8800, NULL)
 
-insert into Department (id, DepartmentName,  Location, DepartmentHead)
-values (1, 'IT', 'London', 'Rick'),
+insert into Department(Id, DepartmentName, Location, DepartmentHead)
+values 
+(1, 'IT', 'London', 'Rick'),
 (2, 'Payroll', 'Delhi', 'Ron'),
-(3, 'HR', 'New York', 'Christine'),
-(4, 'Other department', 'Sydney', 'Cindrella')
+(3, 'HR', 'New York', 'Christie'),
+(4, 'Other Department', 'Sydney', 'Cindrella')
+
 select * from Department
 select * from Employees
 
-select Name, Gender, Salary, Department
+---
+select Name, Gender, Salary, DepartmentName
 from Employees
 left join Department
-on Employees.Department = Department
+on Employees.DepartmentId = Department.Id
+---
 
---arvutab kõikide palgad kokku employees tabelis
-select SUM(cast(salary as int)) from Employees
+--arvutab k]ikide palgad kokku Employees tabelist
+select sum(cast(Salary as int)) from Employees --arvutab kõikide palgad kokku
+-- kõige väiksema palga saaja
+select min(cast(Salary as int)) from Employees
 
---kõige väiksema palga saaja
-select min(cast(salary as int)) from Employees
-
---näitab veerge location ja palka. Palga veerg kuvatakse totalsalary-ks
---teha left join department tabeliga
---grupitab locationiga
-select Location, SUM(cast(salary as int)) as totalsalary from Employees
+--näitab veerge Location ja Palka. Palga veerg kuvatakse TotalSalary-ks
+--teha left join Department tabeliga
+--grupitab Locationiga
+select Location, sum(cast(Salary as int)) as TotalSalary
+from Employees
 left join Department
-on Employees.Department = Department
+on Employees.DepartmentId = Department.Id
 group by Location
 
-select SUM(cast(salary as int)) from employees --arvutab kõigi palga kokku
 
---lisame veeru City ja pikkus on 30
-alter table employees 
-add City nvarchar(30) 
+-- 4 tund
+-- 03.03.26
 
-select City, Gender, SUM(cast(Salary as int )) as TotalSalary from Employees
+select * from Employees
+select sum(cast(Salary as int)) from Employees  --arvutab kõikide palgad kokku
+
+-- lisame veeru City ja pikkus on 30
+-- Employees tabelisse lisada
+alter table Employees
+add City nvarchar(30)
+
+select City, Gender, sum(cast(Salary as int)) as TotalSalary 
+from Employees
 group by City, Gender
 
---peaagu sama päring aga linnad on tähestikulises järjestuses
-select City, Gender, SUM(cast(Salary as int )) as TotalSalary from Employees
-group by City, Gender
-order by City asc
+--peaaegu sama päring, aga linnad on tähestikulises järjestuses
+select City, Gender, sum(cast(Salary as int)) as TotalSalary 
+from Employees 
+group by City, Gender 
+order by City
 
---on vaja teada, et mitu inimest on nimekirjas
-select COUNT(*) from Employees
+select * from Employees
+--on vaja teada, et mitu inimest on nimekirjas selles tabelis
+select count (*) from Employees
 
 --mitu töötajat on soo ja linna kaupa töötamas
-select City, Gender, SUM(cast(salary as int)) as totalsalary,
-COUNT (id) as [Total employees]
-from Employees
-group by Gender,City
+select City, Gender, sum(cast(Salary as int)) as TotalSalary,
+count (Id) as [Total Employee(s)]
+from Employees 
+group by Gender, City 
 
 --kuvab kas naised või mehed linnade kaupa
 --kasutage where
-select City, Gender, SUM(cast(salary as int)) as totalsalary,
-COUNT (id) as [Total employees]
-from Employees
-where Gender = 'Male'
-group by Gender,City
+select City, Gender, sum(cast(Salary as int)) as TotalSalary,
+count (Id) as [Total Employee(s)]
+from Employees 
+where Gender = 'Female'
+group by Gender, City 
 
---sama tulemus nagu eelmine kord aga kasutage having
-select City, Gender, SUM(cast(salary as int)) as totalsalary,
-COUNT (id) as [Total employees]
-from Employees
-where Gender = 'Male'
-group by Gender,City
-having city = 'London';
+--sama tulemuse nagu eelmine kord, aga kasutage: having
+select City, Gender, sum(cast(Salary as int)) as TotalSalary,
+count (Id) as [Total Employee(s)]
+from Employees 
+group by Gender, City 
+having Gender = 'Female'
 
---kõik kes teenivad rohkem kui 4000 
-select City, Gender, SUM(cast(salary as int)) as totalsalary,
-COUNT (id) as [Total employees]
-from Employees
-where Gender = 'Male'
-group by Gender,City
-having sum(cast(salary as int)) > 4000;
+--kõik, kes teenivad rohkem, kui 4000
+select * from Employees where sum(cast(Salary as int)) > 4000
 
---loome tabeli milles hakatakse automaatslet numerdama Id-d
-create table test1
+--teeme variandi, kus saame tulemuse
+select Gender, City, sum(cast(Salary as int)) as TotalSalary,
+count (Id) as [Total Employee(s)]
+from Employees 
+group by Gender, City 
+having sum(cast(Salary as int)) > 4000
+
+--loome tabeli, milles hakatakse automaatselt nummerdama Id-d
+create table Test1
 (
-id int identity(1,1),
-value nvarchar(20)
+Id int identity(1,1),
+Value nvarchar(20)
 )
-insert into test1 values('X')
-select * from test1
 
---kustutame veeru nimega city employee tabelist 
-alter table employees drop column city
+insert into Test1 values('X')
+select * from Test1
 
---inner join
---kuvab neid kellel on Department all olemas väärtus
---mitte katuvad read eemaldatakse ja sellepärast ei näidata
---Jamesi ja Russelit tabelis kuna 
---neil on departmentId null
-select name, Gender, Salary, DepartmentName 
+
+--5 tund
+--04.03.26
+
+--kustutame veeru nimega City Employee tabelist
+alter table Employees
+drop column City
+
+
+--inner join 
+--kuvab neid, kellel on DepartmentName all olemas väärtus
+--mitte kattuvad read eemaldatakse tulemusest
+-- ja sellepärast ei näidata Jamesi ja Russelit tabelis
+--kuna neil on DepartmentId NULL
+select Name, Gender, Salary, DepartmentName
 from Employees
 inner join Department
-on Employees.Department = Department.Id
+on Employees.DepartmentId = Department.Id
 
---left join
-select name, Gender, Salary, DepartmentName 
+-- left join
+select Name, Gender, Salary, DepartmentName
 from Employees
-left join Department
-on Employees.Department = Department.Id
---uurige mis on left join
---näitab andmeid kus vasakpoolses tabelis isegi siis kui seal puudub 
---mõnes reas väärtus
+left join Department  --võib kasutada ka LEFT OUTER JOIN-i
+on Employees.DepartmentId = Department.Id
+--uurige, mis on left join
+--näitab andmeid, kus vasakpoolsest tabelist isegi, siis kui seal puudub
+--võõrvõtme reas väärtus
 
 --right join
-select name, Gender, Salary, DepartmentName 
+select Name, Gender, Salary, DepartmentName
 from Employees
-right join Department
-on Employees.Department = Department.Id
---right join näitab paremas (department) tabelis olevaid väärtuseid 
---mis ei ühti (employees vasaku tabeliga 
+right join Department  --võib kasutada ka RIGHT OUTER JOIN-i
+on Employees.DepartmentId = Department.Id
+--right join näitab paremas (Department) tabelis olevaid väärtuseid,
+--mis ei ühti vasaku (Employees) tabeliga
+
 --outer join
-select name, Gender, Salary, DepartmentName 
+select Name, Gender, Salary, DepartmentName
 from Employees
 full outer join Department
-on Employees.Department = Department.Id
+on Employees.DepartmentId = Department.Id
 --mõlema tabeli read kuvab
 
---teha cross join 
---teha left join kus Employee tabelist DepartmentId on null
-select name, Gender, Salary, DepartmentName 
+--teha cross join
+select Name, Gender, Salary, DepartmentName
 from Employees
 cross join Department
-where Employees.Department = Department.Id
 --korrutab kõik omavahel läbi
 
-select name, Gender, Salary, DepartmentName 
+--teha left join, kus Employees tabelist DepartmentId on null
+select Name, Gender, Salary, DepartmentName
 from Employees
 left join Department
-on Employees.Department = Department.id
-where Department.Id is null
---näitab ainult neid kellel on vasakus tabelis(employee)
---departmentId mull
+on Employees.DepartmentId = Department.Id
+where Employees.DepartmentId is null
 
-select name, Gender, Salary, DepartmentName 
+--teine variant ja sama tulemus
+select Name, Gender, Salary, DepartmentName
+from Employees
+left join Department
+on Employees.DepartmentId = Department.Id
+where Department.Id is null
+-- näitab ainult neid, kellel on vasakus tabelis (Employees)
+-- DepartmentId null
+
+select Name, Gender, Salary, DepartmentName
 from Employees
 right join Department
-on Employees.Department = Department.id
-where Department.Id is null
---näitab ainult paremas tabelis olevatrida
---mis ei kattu Employees-ga
+on Employees.DepartmentId = Department.Id
+where Employees.DepartmentId is null
+--näitab ainult paremas tabelis olevat rida, 
+--mis ei kattu Employees-ga.
 
---full join 
+--full join
 --mõlema tabeli mitte-kattuvate väärtustega read kuvab välja
-select name, Gender, Salary, DepartmentName 
+select Name, Gender, Salary, DepartmentName
 from Employees
 full join Department
-on Employees.Department = Department.id
-where employees.Department is null
---teete AdventureworksLT2019 andmebaasile join päringud
---inner join, left join, right join, cross join ja full join
---tabeleid sellesse andmebaasi ei tohi teha
+on Employees.DepartmentId = Department.Id
+where Employees.DepartmentId is null
+or Department.Id is null
 
---mõnikord peab muutuja ette kirjutama tabeli nimetuse nagu Product.Name
---et editor saaks aru kumba tabeli muutujat soovitatakse kasutada ja ei tekiks segadust
-Select Product.Name [Product Name], ProductNumber, ListPrice, ProductModel.
+--teete AdventureWorksLT2019 andmebaasile join p'ringuid:
+--inner join, left join, right join, cross join ja full join
+--tabeleid sellesse andmebaasi juurde ei tohi teha
+
+--Mõnikord peab muutuja ette kirjutama tabeli nimetuse nagu on Product.Name,
+--et editor saaks aru, et kummma tabeli muutujat soovitakse kasutada ja ei tekiks
+--segadust
+select Product.Name as [Product Name], ProductNumber, ListPrice, 
+ProductModel.Name as [Product Model Name], 
+Product.ProductModelId, ProductModel.ProductModelId
 --mõnikord peab ka tabeli ette kirjutama täpsustama info
---nagu on SalesLT.Product
-Name as [Product Model Name]
+--nagu on SalesLt.Product
 from SalesLt.Product
 inner join SalesLt.ProductModel
---antud juhul Product tabelis ProductModelId võõrvõti
+--antud juhul Producti tabelis ProductModelId võõrvõti,
 --mis ProductModeli tabelis on primaarvõti
 on Product.ProductModelId = ProductModel.ProductModelId
 
-select isnull('ingvar', 'No manager') as Manager
---Null asemel kuvab No Manager
-select coalesce(Null, 'No Manager') as Manager
+--rida 412
+--6 tund
+--12.03.26
+
+--isnull funktsiooni kasutamine
+select isnull('Ingvar', 'No Manager') as Manager
+
+-- NULL asemel kuvab No Manager
+select coalesce(NULL, 'No Manager') as Manager
 
 alter table Employees
-add ManagerID int
+add ManagerId int
 
---neile kelle ei ole ülemust siis paneb neile no manager teksti
---Kasutage left joini 
-select E.Name as Employee, ISNULL(M.Name, 'No Manager') as Manager from Employees E 
-left join Employees M 
-on E.ManagerId = M.id
+--neile, kellel ei ole ülemust, siis paneb neile No Manager teksti
+--kasutage left joini
+select  E.Name as Employee, isnull(M.Name, 'No Manager') as Manager
+from Employees E
+left join Employees M
+on E.ManagerId = M.Id
 
-select E.Name as Employee, ISNULL(M.Name, 'No Manager') as Manager from Employees E 
-inner join Employees M 
-on E.ManagerId = M.id
+--kasutame inner joini
+--kuvab ainult ManagerId all olevate isikute väärtuseid
+select E.Name as Employee, M.Name as Manager
+from Employees E
+inner join Employees M
+on E.ManagerId = M.Id
 
 --kõik saavad kõikide ülemused olla
-select E.Name as Employee, ISNULL(M.Name, 'No Manager') as Manager from Employees E 
-cross join Employees M 
+select E.Name as Employee, M.Name as Manager
+from Employees E
+cross join Employees M
 
---lisame tabelisse uued veerud 
-alter table Employees 
-add MiddleName nvarchar(30),
-LastName nvarchar(30)
+--lisame Employees tabelisse uued veerud
+alter table Employees
+add MiddleName nvarchar(30)
+
+alter table Employees
+add LastName nvarchar(30)
 
 --muudame olemasoleva veeru nimetust
-sp_rename 'Employees.Name','FirstName'
-update Employees 
-set MiddleName = 'Nick'
+sp_rename 'Employees.Name', 'FirstName'
+
+update Employees
+set FirstName = 'Tom', MiddleName = 'Nick', LastName = 'Jones'
 where Id = 1
-update Employees 
-set MiddleName = 'Todd'
+
+update Employees
+set FirstName = 'Pam', MiddleName = NULL, LastName = 'Anderson'
+where Id = 2
+
+update Employees
+set FirstName = 'John', MiddleName = NULL, LastName = NULL
+where Id = 3
+
+update Employees
+set FirstName = 'Sam', MiddleName = NULL, LastName = 'Smith'
+where Id = 4
+
+update Employees
+set FirstName = NULL, MiddleName = 'Todd', LastName = 'Someone'
 where Id = 5
-update Employees 
-set MiddleName = 'Ten'
+
+update Employees
+set FirstName = 'Ben', MiddleName = 'Ten', LastName = 'Sven'
 where Id = 6
-update Employees 
-set MiddleName = 'Balerine'
+
+update Employees
+set FirstName = 'Sara', MiddleName = NULL, LastName = 'Connor'
+where Id = 7
+
+update Employees
+set FirstName = 'Valarie', MiddleName = 'Balerine', LastName = NULL
 where Id = 8
-update Employees 
-set MiddleName = '007'
+
+update Employees
+set FirstName = 'James', MiddleName = '007', LastName = 'Bond'
 where Id = 9
-update Employees 
-set LastName = 'Crowe'
+
+update Employees
+set FirstName = NULL, MiddleName = NULL, LastName = 'Crowe'
 where Id = 10
 
---igast reast võtab esimesena lahtri ja kuvab ainult seda
+--igast reast võtab esimesena täidetud lahtri ja kuvab ainult seda
+--coalesce
 select * from Employees
-select Id, coalesce (FirstName, MiddleName, LastName) as name from Employees 
+select Id, coalesce(FirstName, MiddleName, LastName) as Name
+from Employees
 
 --loome kaks tabelit
 create table IndianCustomers
 (
-Id int Identity(1,1),
+Id int identity(1,1),
 Name nvarchar(25),
 Email nvarchar(25)
 )
 
 create table UKCustomers
 (
-Id int Identity(1,1),
+Id int identity(1,1),
 Name nvarchar(25),
 Email nvarchar(25)
 )
 
---sisetame tabelisse andmeid 
+--sisestame tabelisse andmeid
 insert into IndianCustomers (Name, Email)
 values ('Raj', 'R@R.com'),
 ('Sam', 'S@S.com')
- 
- insert into UKCustomers (Name, Email)
-values ('Ben', 'B@RB.com'),
-('Sam', 'S2S.com')
+
+insert into UKCustomers (Name, Email)
+values ('Ben', 'B@B.com'),
+('Sam', 'S@S.com')
+
 select * from IndianCustomers
 select * from UKCustomers
 
---kasutame union all mis näitab kõiki ridu 
+--kasutame union all, mis näitab kõiki ridu
 --union all ühendab tabelid ja näitab sisu
+select Id, Name, Email from IndianCustomers
+union all
+select Id, Name, Email from UKCustomers
+
+--korduvate väärtustega read pannakse ühte ja ei korrata
+select Id, Name, Email from IndianCustomers
+union
+select Id, Name, Email from UKCustomers
+
+--kasutad union all, aga sorteerid nime järgi
 select Id, Name, Email from IndianCustomers
 union all
 select Id, Name, Email from UKCustomers
 order by Name
 
 --stored procedure
---tavaliselt pannakse nimetuse ett sp mis tähendab stored procedure
+--tavaliselt pannakse nimetuse ette sp, mis tähendab stored procedure
 create procedure spGetEmployees
-as begin 
-select FirstName, Gender from Employees
+as begin
+	select FirstName, Gender from Employees
 end
+
 --nüüd saab kasutada selle nimelist sp-d
 spGetEmployees
 exec spGetEmployees
+execute spGetEmployees
 
 create proc spGetEmployeesByGenderAndDepartment
---@ täheñdab muutujat
+--@ tähendab muutujat
 @Gender nvarchar(20),
 @Department int
-as begin 
-select FirstName, Gender, Department from Employees where Gender = @Gender
-and Department = @Department
+as begin
+	select FirstName, Gender, Department from Employees where Gender = @Gender
+	and Department = @Department
 end
 
---kui nüüd alloveast käsklust käima panna siis nõuab gender parameetrit
+--kui nüüd allolevat käsklust käima panna, siis nõuab gender parameetrit
+spGetEmployeesByGenderAndDepartment
+
+--õige variant
 spGetEmployeesByGenderAndDepartment 'Female', 1
 
---niimoodi saaab sp kirja pandus järjekorrast mööda minna kui ise paned muutuja paika
-spGetEmployeesByGenderAndDepartment @Department = 1, @Gender = 'Male'
+--niimoodi saab sp kirja pandud j'rjekorrast mööda minna, kui ise paned muutuja paika
+spGetEmployeesByGenderAndDepartment @DepartmentId = 1, @Gender = 'Male'
 
---saab vaadata sp sisu result vaates
+---saab vaadata sp sisu result vaates
 sp_helptext spGetEmployeesByGenderAndDepartment
---kuidas muuta sp-d ja panna sinna vüti peale et keegi teine peale teie ei saaks muuta
+
+--kuidas muuta sp-d ja panna sinna v]ti peale, et keegi teine peale teie ei saaks muuta
 --kuskile tuleb lisada with encryption
-alter proc spGetEmployeesByGenderAndDepartment
-@Gender nvarchar(20),
-@Department int
+alter proc spGetEmployeesByGenderAndDepartment   
+@Gender nvarchar(20),  
+@Department int 
 with encryption
-as begin 
-select FirstName, Gender, Department from Employees where Gender = @Gender
-and Department = @Department
+as begin  
+ select FirstName, Gender, Department from Employees where Gender = @Gender  
+ and Department = @Department  
 end
 
-create proc spGetEmployeecountbyender
+--sp tegemine
+create proc spGetEmployeeCountByGender
 @Gender nvarchar(20),
 @EmployeeCount int output
 as begin
-select @EmployeeCount = COUNT(Id) from Employees where Gender = @Gender
+	select @EmployeeCount = count(Id) from Employees where Gender = @Gender
 end
---execute spGetEmployeecountbyender sp
---if ja else, kui Totalcount = 0, siis tuleb tekst toatlcount is null
---lõpus kasuta print @totalcount puhul  
-declare @totalcount int
-execute spGetEmployeecountbyender 'Male', @totalcount
-if (@totalcount = 0)
-print '@totalcount is null'
+
+--annab tulemuse, kus loendab ära nõuetele vastavad read
+--prindib ka tulemuse kirja teel
+--tuleb teha declare muutuja @TotlaCount, mis on int
+declare @TotalCount int
+--execute spGetEmployeeCountByGender sp, kus on parameetrid Male ja TotalCount
+execute spGetEmployeeCountByGender 'Male', @TotalCount out
+--if ja else, kui TotalCount = 0, siis tuleb tekst TotalCount is null
+if(@TotalCount = 0)
+	print '@TotalCount is null'
 else
-print '@Total is not null'
-print @totalcount
+	print '@Total is not null'
+print @TotalCount
+--l]pus kasuta print @TotalCounti puhul
+
+declare @TotalCount int
+execute spGetEmployeeCountByGender @EmployeeCount = @TotalCount out, @Gender = 'Female'
+print @TotalCount
+
+--sp sisu vaatamine
+sp_help spGetEmployeeCountByGender
+--tabeli info vaatamine
+sp_help Employees
+--kui soovid sp teksti näha
+sp_helptext spGetEmployeeCountByGender
+
+--vaatame millest sõltub meie valitud sp
+sp_depends
+--näitab, et sp sõltub Employees tabelist kuna seal on Count(Id)
+--ja ID on Employee tabelis
+
+--vaatame tabelit
+sp_depends Employees
+
+--teeme sp, mis annab andmeid ID ja Name veergude kohta Employee tabelis
+create proc spGetNameById
+@Id int,
+@Name nvarchar(20) output
+as begin 
+select @Id = Id, @Name = FirstName from Employees
+end
+--annab kogu tabeli ridade arvu
+create proc spTotalCount2
+@TotalCount int output
+as begin
+select @TotalCount = count(Id) from Employees
+end
+
+--on vaja teha uus päring kus kasutame sptotalcount2 sp-d
+--et saada tabelite ridade arv
+--tuleb delrareerida muutuja @TotalCount mis on int andmetüüp
+--tuleb execute spTotalCount2 kus parameeter @totalcount out
+declare @TotalEmployees int
+execute spTotalCount2 @TotalCount out
+print @TotalEmployees
+
+--Mis Id all on keegi nime järgi
+create proc spGetNameById1
+@Id int,
+@FirstName nvarchar(20) output
+as begin
+select @FirstName = FirstName from Employees where Id = @Id 
+end
+
+--annab tulemuse kus Id 1 (sead numbrit saab muuta) real on keegi koos nimega
+--print tuleb kasyrada et näidata tulemust
+declare @FirstName nvarchar(20) 
+exec spGetNameById1 3, @FirstName output
+print 'Name of the Employee = ' + @FirstName
+
+--tehke sama mis eelmine aga kasutage spgetbynameid sp-d
+--firstname lõpus on out
+declare @FirstName nvarchar(20) 
+exec spGetNameById1 3, @FirstName out
+print 'Name of the Employee = ' + @FirstName 
+--output tagastab muudetud read kohe pärinu tulemusena
+--see on salvestatud protseduuuris ja ühe väärtuse tagastamine
