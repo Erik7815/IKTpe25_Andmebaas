@@ -711,3 +711,172 @@ exec spGetNameById1 3, @FirstName out
 print 'Name of the Employee = ' + @FirstName 
 --output tagastab muudetud read kohe pärinu tulemusena
 --see on salvestatud protseduuuris ja ühe väärtuse tagastamine
+--out ei anna mitte midagi kui seda ei määra execute käsus
+
+sp_help spGetNameById
+
+create proc spGetNamebyId2
+@Id int
+as begin
+--kui on begin siis on ka end kuskil olemas
+return (select FirstName from Employees where id = @Id)
+end
+
+--tuleb veateade kuna kutsusime välja int-i aga Tom on nvarchar
+declare @EmployeeName nvarchar(50)
+execute @EmployeeName = spGetNamebyId2 1
+print 'Name of the employee = ' + @EmployeeName
+
+
+--sisseehitatud string funktsioonid 
+--see konverteerib ASCII tähe väärtuse numbriks
+select ASCII('A')
+select CHAR(65)
+--prindime kogu tähestiku välja
+
+declare @Start int
+set @Start = 97
+while (@Start <= 122)
+begin
+select char (@Start)
+set @Start = @Start + 1
+end
+
+--eemaldame tühjad kohad sulgudes
+select ('                Hello')
+select LTRIM('                Hello')
+
+--tühiute eemaldamine veerust, mis on tabelist
+select FirstName, MiddleName, LastName from Employees
+--eemaldage tühikud FirstName veerust ära
+select LTRIM(FirstName) as FirstName, MiddleName, LastName from Employees
+
+--paremalt poolt tühjad stringid lõikab ära
+select RTRIM('       hello      ')
+--keerab kooloni sees olevad andmed vastupidiseks
+--vastavalt lower-ga ja upper-ga saan muuta märkide suurust
+--reverse funktsioon pöörab kõik ümber 
+select REVERSE(upper(ltrim(FirstName))) as FirstName, MiddleName, LOWER(LastName), RTRIM(ltrim(FirstName)) + 
+' ' + MiddleName + ' ' LastName as FullName
+from Employees
+--left, right, substring
+--vasakult poolt neli esimest tähte
+select LEFT('ABCDEF', 4)
+--paremalt poolt kol tähte
+select RIGHT ('ABCDEF', 3)
+
+--kuvab @-tähemärki asetust e mitmes on @ märrk 
+select charindex('@', 'Sara@aaa.com')
+
+--esimene nr peale komakohta näitab, et mitmedast alustab ja siis mitu nr peale seda kuvada
+select SUBSTRING('pam@bbb.com', 5 2)
+
+--@ märgist kuvab kolm tähemärki. Viimase nr saab määrata pikkust
+select SUBSTRING('pam@bbb.com', CHARINDEX('@', 'pam@bbb.com') + 1, +3)
+
+select SUBSTRING('pam@bbb.com', CHARINDEX('@', 'pam@bbb.com') + 5
+len('pam@bbb.com') - charindex('@', 'pam@bbb.com')
+--peale @ märki hakkab kuvama tulemus, nr saab kaugust seadistada
+
+alter table Employees 
+add Email nvarchar(20)
+
+update Employees set Email = 'Tom@ttt.com' where id = 1
+update Employees set Email = 'Pam@bbb.com' where id = 2
+update Employees set Email = 'John@jjj.com' where id = 3
+update Employees set Email = 'Sam@sss.com' where id = 4
+update Employees set Email = 'Todd@ttt.com' where id = 5
+update Employees set Email = 'Ben@bbb.com' where id = 6
+update Employees set Email = 'Sara@sss.com' where id = 7
+update Employees set Email = 'Valarie@vvv.com' where id = 8
+update Employees set Email = 'James@jjj.com' where id = 9
+update Employees set Email = 'Russel@rrr.com' where id = 10
+
+select * from Employees
+select SUBSTRING (Email, charindex('@', Email) + 1,
+len (email) - charindex('@', Email)) as EmailDomain
+from Employees
+
+--alates teisest tähest emailisis kuni @ märgini on tärnid
+select FirstName, LastName, 
+SUBSTRING (Email, 1, 2) + replicate('*', 5) + 
+substring(Email, Charindex('@', Email), len (Email) - charindex('@', Email)+1) as Email
+from Employees
+
+--kolm korda näitab stringis olevat väärtust
+select REPLICATE ('asd', 3)
+
+--tühiku sisestamine
+select SPACE(5)
+
+--tühiku sisestaine FirstName ja LastName vahele
+select FirstName + SPACE(25) + LastName as FullName
+from Employees
+
+--PatIndex
+--sama mis charindex aga dünaamilisem ja saab kasutada wildcardi 
+select Email, PATINDEX('%@aaa.com', Email) as Firstoccurence
+from Employees where PATINDEX('%@jjj.com', Email) > 0
+--leian kõik selle domeeni esindajad ja alates mitmendast märgist algab @
+
+--kõik .com emailid  asendav .net-ga
+select Email, REPLACE (Email, '.com', '.net') from Employees
+
+--soovin asendada peale esimest märki kolm tähte viis tärniga
+select FirstName, LastName, Email,
+stuff(Email, 2, 3, '*****') as stuffedEmail
+from Employees 
+
+create table DateTime 
+(
+c_time time,
+c_date date,
+c_smalldatetime smalldatetime, 
+c_datetime datetime,
+c_datetime2 datetime2,
+c_datetimeoffset datetimeoffset
+)
+
+select * from DateTime
+
+--konkreetse masina kellaaeg
+select GETDATE(), 'GETDATE()'
+
+insert into DateTime
+values (getdate(), GETDATE(), GETDATE(), GETDATE(), GETDATE(), GETDATE())
+
+update DateTime 
+set c_datetimeoffset = '2026-03-19 55:27:15.0500000 +10:00'
+where c_datetimeoffset = '2026-03-19 14:27:15.0500000 +00:00'
+
+select CURRENT_TIMESTAMP, 'CURRENT_TIMESTAMP' ---aja päring
+select SYSDATETIME(), 'SYSDATETIME' ---veel täpsem aja päring
+select SYSDATETIMEOFFSET(), 'SYSDATETIMEOFFSET' --täpne aeg koos ajalise nihkega
+select GETUTCDATE(), 'GETUTCDATE' --UTC aeg
+--saab kontrollida kas on õige andmetüüp
+select ISDATE('asd') --tagastab 0 kuna string ei ole date
+--kuidas saada vastuseks 1 isdate puhul
+select ISDATE(GETDATE())
+select ISDATE('2026-03-19 55:27:15.0500000') --tagastab 0 kuna max kolm komakohta võib olla 
+select DAY(getdate()) --annab tänase päeva nr
+select DAY('01/24/2026') --annab stringis oleva kuupäeva ja järjestus peab olema õige
+select Month(Getdate()) --annab tänase kuu nr
+select month('01/24/2026') --annab stringis oleva kuu ja järjestus peab olema õige
+select YEAR(getdate()) --annab jooksva aasta nr
+select year('01/24/2026') --annab stringis oleva aasta ja järjestus peab olema õige
+
+select DATENAME(day, '2026-03-19 14:27:15.0500000') --annab stringis oleva päeva nr
+select DATENAME(WEEKDAY, '2026-03-19 14:27:15.0500000') --annab stringis oleva päeva sõnana 
+select DATENAME(month, '2026-03-19 14:27:15.0500000') --annab stringis oleva kuu sõnana
+
+create table EmployeesWithDates
+(
+Id nvarchar(2), 
+Name nvarchar(20),
+DateOfBirth datetime
+)
+insert into EmployeesWithDates (Id, Name, DateOfBirth) values
+('1','Sam', 1980-12-30 00:00:00.000),
+('2', 'Pam', 1982-12-30 12:02:36.260),
+('3' , 'John', 1985-08-22 12:03:30:370),
+('4', 'Sara', 1979-11-29 12:59:30.670)
