@@ -2469,3 +2469,93 @@ fetch next from ProductIdCursor into @ProductId
 end
 
 select * from Product
+
+--rida 2478
+--tund 18
+--28. 05. 26
+--vabatab rea e suleb cursori
+
+--vaatame kas read on uuuendatud
+select name, UnitPrice
+from Product join
+ProductSales on Product.Id = ProductSales.ProductId
+where(Name = 'Product 55' or Name = 'Product - 65' or Name = 'Product - 1000')
+
+-- asendame cursorid JOIN-ga
+update ProductSales
+set UnitPrice = 
+case
+when Name = 'Product - 55' then 155
+when Name = 'Product - 65' then 165
+--võib kasutadalike või =
+when Name like 'Product - 1000' then 10001
+end
+from ProductSales
+join Product
+on Product.Id = ProductSales.ProductId
+where Name = 'Product - 55' or Name = 'Product - 65' or
+Name like 'Product - 1000'
+
+--vaatame tulemust
+selECT Name, UnitPrice
+from Product join
+ProductSales on Product.Id = ProductSales.ProductId
+where(Name = 'Product - 55' or Name = 'Product - 65' or Name = 'Product - 1000')
+
+--tabelite info
+--nimekiri süsteemi objektidest
+select * from sysobjects where xtype = 'S'
+
+--tabelite nimekiri
+select * from sys.tables
+--nimekiri tabelist ja view-st
+select * from INFORMATION_SCHEMA.TABLES
+
+--kui soovid erinevaid objekttüüpe vaadata, siis kasuta XTYPE süntaksit
+select distinct xtype from sysobjects
+
+--IT - internal table
+--P - stored procedure
+--PK - primary key contsraint
+--S - system table
+--SQ - service queue
+--U - user table 
+--V - view
+
+--annab teada kas sellise nimega tabel on olemas
+if not exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'Employee')
+begin 
+create table Employee123
+(
+Id int Primary key,
+Name nvarchar (30),
+ManagerId int
+)
+print 'Table has been created'
+end
+else
+begin
+print 'Table already exists'
+end
+
+--saab kasutada ka sissehitatud funktsiooni: OBJECT_ID()
+if OBJECT_ID('Employee') is null
+begin
+print 'Table created'
+end
+else
+begin
+print 'Table already exists'
+end
+
+--tahame sama nimega tabeli ära kustudada ja siis uuesti luua
+if OBJECT_ID('Employee') is not null
+begin
+drop table Employee
+end
+create table Employee
+(
+Id int priamry key,
+Name nvarchar(30),
+ManagerId intn
+)
