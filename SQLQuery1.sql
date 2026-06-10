@@ -2559,3 +2559,226 @@ Id int priamry key,
 Name nvarchar(30),
 ManagerId intn
 )
+
+--rida 2711
+--tund
+--03.06.26
+
+alter table Employee
+add Email nvarchar(50)
+
+if not exists(select * from INFORMATION_SCHEMA.COLUMNS where
+COLUMN_NAME = 'Email' and TABLE_NAME = 'Employee' and TABLE_SCHEMA = 'dbo')
+begin 
+alter table Employee
+add Email nvarchar(40)
+end
+else
+begin 
+print 'Column already exists'
+end
+
+--kontrollime kas mingi nimega veerg on olemas
+if COL_LENGTH('Employee', 'Email') is not null
+begin 
+print 'Column already exists'
+end
+else
+begin
+print 'Column does not exist'
+end
+
+--Merge
+--tutvustati aastal 2008, mis lubab teha sisestamist, uuendamist ja kustutamist
+--ei peakasutama mitut käsku
+
+--merge puhul peab alati olema vähemalt kaks tabelit:
+--1, algallika tabel e source table
+--2. sihtmärk tabel e target table
+
+--ühendab sihttabeli lähtetabeliga ja kasutab mõlemas tabelis ühist veergu
+--koodinäide:
+merge [TARGET] as T
+using [SOURCE] as S
+on [JOIN_]
+when matched then
+[DELETE STATEMENT]
+when matched by target then
+[DELETE STATEMENT]
+when not matched by source then
+[DELETE STATEMENT]
+
+create table StudentSource
+(
+Id int primary key,
+Name nvarchar(30)
+)
+go
+insert into StudentSource values(1, 'Mike')
+insert into StudentSource values(2, 'sara')
+go
+create table StudentTarget
+(
+Id int primary key,
+Name nvarchar(30)
+)
+insert into StudentTarget values(1, 'Mike M')
+insert into StudentTarget values(3, 'John')
+)
+go
+--1. kui leitakse klappiv rida, siis StdentTarget tabel on uuendatud
+--2. kui read on SourceStudent tabelis olemas, aga neid ei ole StdentTarget-s
+--siis puuduolevad read sisestatakse
+--3.lui read on olemas StdentTarget-s aga mitte StudentSource-s, siis StdentTarget
+--tabelis read kustutakse ära
+merge StudentTarget as T
+using StudentSource as S
+on T.Id = S.Id
+when matched then 
+update set T.Name = S.Name
+when not matched by target then
+insert(Id, Name) values(S.Id, S.Name)
+when not matched by source then
+delete;
+--------------------------
+insert into StudentSource values(1, 'Mike')
+insert into StudentSource values(2, 'sara')
+insert into StudentTarget values(1, 'Mike M')
+insert into StudentTarget values(3, 'John')
+
+merge StudentTarget as T
+using StudentSource as S
+on T.Id = S.Id
+when matched then 
+update set T.Name = S.Name
+when not matched by target then
+insert(Id, Name) values(S.Id, S.Name);
+
+select * from StudentTarget
+select * from StudentSource
+
+--transaction-d
+
+--mis see on?
+--on rühm käske, mis muudavad DB-s salvestatud andmeid. Tehingut käsitletakse
+--ühe tööüksusena. KAs kõik käsud õnnestuvad või mitte. Kui üks tehing sellest ebaõnnestub
+--siis kõik juba muudetud andmed muudetakse tagasi
+
+create table Account
+(
+Id int primary key,
+AccountName nvarchar(25),
+Balance int
+)
+ insert into Account values(1, 'Mark', 1000)
+  insert into Account values(2, 'Mary', 1000)
+
+  begin try 
+  begin transaction
+  update Account set Balance = Balance - 100 where Id = 1
+    update Account set Balance = Balance - 100 where Id = 2
+
+commit transaction
+end try
+begin catch
+rollback transaction
+print 'Transaction failed. All changes have been rolled back'
+end catch
+go
+
+select * from Account
+
+--mõned levinumad probleemid:
+--1. Dirty rea e must lugemine
+--2. Lost update Employee kadunud uuendused
+--3. Nonreapeateable reads e kordumatud lugemised
+--4. Phantom read e fantoom lugemine
+
+--kõik eelnecad probleemid lahendaks ära, kui lubatakse igal ajal
+--korraga ühel kasutajal ühe tehingu teha. Selle tulemusel kõik tehingud
+--satuvad järjekorda ja neil võib tejjida vajadus kaua oodata, enne
+--kui võimalus tehingut teha saabub
+
+--kui ubada samaaegselt kõik tehingud ära teha, siis see omakorda
+
+--1. read uncommited e lugemine ei ole teostatud
+--2. read commited e lugemine tehtud
+--3. reapeatable read e korduv lugemine
+--4. snapshot e kuvatõmmis
+--5. serializable e serailseerimine
+
+----iagle juhumile tuleb läheneda jutumipõhiselt ja 
+--mid vähem valet lugemist tuleb seda aeglasem
+
+--dirty read näide
+
+create table Inventory
+(
+Id int identity primary key,
+Product nvarchar(50),
+ItemsInStock int
+)
+go
+insert into Inventory values('Phone', 10)
+select * from Inventory
+
+--1.käsklus
+--1. transaction
+begin tran
+update Inventory set ItemsInStock = 9 where Id = 1
+--kliendile tuleb arve
+waitfor delay '00:00:15'
+--ebapiisav saldojääk, teeb rollback-i
+rollback tran
+
+--2 käsklus
+--samal ajal TEGIN UUE päringuga kna
+--kus kohe peale esimest käsklust käsklust käivitan
+--teise käskluse
+--2 transction
+set tran isolation level read uncommited
+select * from Inventory where Id = 1
+--3 käsklus
+--nüüd panen selle käskluse tööle
+--käivita kui käsklus 1 on moodas
+select * from Inventory (nolock) where Id = 1
+--muutsin esimese käsuga 9 iphine peale, aga--ikka on 10 tk
+
+--Lost update e kadunud uuendused
+select * from Inventory
+
+set tran isolation level repeatable read
+---1 tran
+begin tran
+declare @ItemsInStock int
+
+select @ItemsInStock = ItemsInStock
+from Inventory where Id = 1
+
+waitfor delay '00:00:15'
+set @ItemsInStock = @ItemsInStock - 1
+
+update Inventory
+set ItemsInStock = @ItemsInStock where Id = 1
+
+print @ItemsInStock
+commit transaction
+
+
+-- samal ajal panen teise transactioni tööle
+set tran isolation level repeatable
+read
+begin tran
+declare @ItemsInStock int
+select @ItemsInStock = ItemsInStock
+from dbo.Inventory where Id = 1
+
+waitfor delay '00:00:01'
+set @ItemsInStock = @ItemsInStock - 2
+
+update Inventory
+set ItemsInStock = @ItemsInStock
+where Id = 1
+
+print @ItemsInStock
+commit tran
